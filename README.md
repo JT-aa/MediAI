@@ -23,7 +23,7 @@ cd MediAI/backend
 python -m venv venv  # Create virtual environment
 source venv/bin/activate  # Activate (Linux/Mac)
 venv\Scripts\activate  # Activate (Windows)
-pip install fastapi uvicorn onnxruntime pydantic numpy
+pip install fastapi uvicorn onnxruntime pydantic numpy sqlalchemy mysqlclient
 
 uvicorn main:app --reload
 ```
