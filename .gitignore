@@ -19,7 +19,7 @@ yarn-error.log*
 pip-log.txt
 pip-delete-this-directory.txt
 cache/
-.DS_Store  # macOS metadata files
+.DS_Store
 
 # Build & Compiled Files
 /build
