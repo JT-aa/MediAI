@@ -46,10 +46,12 @@ class LabReport(Base):
     __tablename__ = "lab_reports"
     report_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
+    name = Column(String(255), index=True)
     date = Column(Date, index=True) 
     file_blob = Column(LONGBLOB, nullable=False) 
     extracted_text = Column(Text)
     analysis = Column(Text) 
+    risk_level = Column(Integer)
 
 # Create the tables in the database (usually done once during app initialization)
 Base.metadata.create_all(bind=engine)
@@ -156,7 +158,8 @@ def read_lab_report(report_id: int, db: Session = Depends(get_db)):
     return {
             "report_id": lab_report.report_id,
             "user_id": lab_report.user_id,
-            "date": lab_report.date
+            "date": lab_report.date,
+            "risk_level": lab_report.risk_level,
         }
 
 # get lab report information by user_id from the mysql database
@@ -172,7 +175,8 @@ def read_lab_reports(user_id: int, db: Session = Depends(get_db)):
         {
             "report_id": report.report_id,
             "user_id": report.user_id,
-            "date": report.date
+            "date": report.date,
+            "risk_level": report.risk_level,
         }
         for report in lab_reports
     ]
@@ -195,9 +199,6 @@ def get_pdf(report_id: int, db: Session = Depends(get_db)):
     pdf_data = lab_report.file_blob  # Assuming `pdf_file` holds the PDF binary data in the DB
     return Response(pdf_data, media_type="application/pdf")
 
-
-
-    
 
 
 # @app.post("/predict/")

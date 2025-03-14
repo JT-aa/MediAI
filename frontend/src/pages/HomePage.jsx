@@ -18,6 +18,9 @@ const HomePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [show, setShow] = useState(false);
   const [labResults, setLabResults] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState(null);
+  const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting by ID
 
   useEffect(() => {
     fetchUser();
@@ -43,6 +46,29 @@ const HomePage = () => {
       .catch((error) => console.error(error));
   }
 
+  const sortedLabResults = [...labResults].sort((a, b) => {
+    if (sortCriteria === "id") {
+      return a.report_id - b.report_id;
+    } else if (sortCriteria === "date") {
+      return new Date(a.date) - new Date(b.date);
+    } else if (sortCriteria === "risk_level") {
+      return b.risk_level - a.risk_level;
+    }
+    return 0;
+  });
+
+  function handleDeleteConfirm() {
+    if (selectedReportId) {
+      axios
+        .delete(`${BACKEND_API_URL}/lab_reports/${selectedReportId}`)
+        .then(() => {
+          fetchLabResults();
+          setShowDeleteModal(false);
+        })
+        .catch((error) => console.error(error));
+    }
+  }
+
   function handleUpdate() {
     axios
       .put(`${BACKEND_API_URL}/users/1`, editedUser)
@@ -52,6 +78,20 @@ const HomePage = () => {
       })
       .catch((error) => console.error(error));
   }
+
+  // Function to determine button style based on risk level
+  const getRiskLevelButton = (riskLevel) => {
+    switch (riskLevel) {
+      case 3:
+        return { variant: "danger", text: "High" };
+      case 2:
+        return { variant: "warning", text: "Medium" };
+      case 1:
+        return { variant: "success", text: "Low" };
+      default:
+        return { variant: "secondary", text: "Unknown" };
+    }
+  };
 
   return (
     <Container className="py-4">
@@ -232,37 +272,70 @@ const HomePage = () => {
           <Card>
             <Card.Body>
               <Card.Title className="mb-3">My Lab Results</Card.Title>
+              <Form.Group className="mb-3">
+                <Form.Label>Sort By:</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={sortCriteria}
+                  onChange={(e) => setSortCriteria(e.target.value)}
+                >
+                  <option value="id">ID</option>
+                  <option value="date">Date</option>
+                  <option value="risk_level">Risk Level</option>
+                </Form.Control>
+              </Form.Group>
               <ListGroup>
-                {labResults.map((labResult) => (
-                  <ListGroup.Item
-                    key={labResult.report_id}
-                    className="d-flex justify-content-between align-items-center"
-                  >
-                    <a
-                      href={`/lab-result/${labResult.report_id}`}
-                      className="text-decoration-none"
+                {sortedLabResults.map((labResult) => {
+                  const { variant, text } = getRiskLevelButton(
+                    labResult.risk_level
+                  );
+                  return (
+                    <ListGroup.Item
+                      key={labResult.report_id}
+                      className="d-flex justify-content-between align-items-center"
                     >
-                      Lab Result {labResult.report_id} - {labResult.date}
-                    </a>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() =>
-                        axios
-                          .delete(
-                            `${BACKEND_API_URL}/lab_reports/${labResult.report_id}`
-                          )
-                          .then(fetchLabResults)
-                      }
-                    >
-                      Delete
-                    </Button>
-                  </ListGroup.Item>
-                ))}
+                      <a
+                        href={`/lab-result/${labResult.report_id}`}
+                        className="text-decoration-none"
+                      >
+                        Lab Result {labResult.report_id} - {labResult.date}
+                      </a>
+                      <div className="d-flex align-items-center">
+                        <Button
+                          variant={variant}
+                          size="sm"
+                          style={{ width: "80px", marginRight: "10px" }}
+                        >
+                          {text}
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedReportId(labResult.report_id);
+                            setShowDeleteModal(true);
+                          }}
+                        >
+                          x
+                        </Button>
+                      </div>
+                    </ListGroup.Item>
+                  );
+                })}
               </ListGroup>
               <Button className="mt-3" onClick={() => setShow(true)}>
                 Add New Lab Result
               </Button>
+            </Card.Body>
+          </Card>
+          <Row className="mt-4"></Row>
+
+          <Card>
+            <Card.Body>
+              <Card.Title className="mb-3">
+                Overall Recommendations
+                <Button style={{ marginLeft: "16px" }}>Regenerate</Button>
+              </Card.Title>
             </Card.Body>
           </Card>
         </Col>
@@ -309,6 +382,25 @@ const HomePage = () => {
             }}
           >
             Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this lab result? This action cannot be
+          undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleDeleteConfirm}>
+            Delete
+          </Button>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
           </Button>
         </Modal.Footer>
       </Modal>
