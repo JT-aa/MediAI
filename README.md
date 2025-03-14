@@ -17,9 +17,9 @@ npm run dev
 the frontend will be running locally on http://localhost:5173/
 
 ### Backend Setup
-create a schema called "mediai" in local mysql database
-replace the credentials in DATABASE_URL in main.py with your own
-do not enter the comments
+create a schema called "mediai" in local mysql database.
+replace the credentials in DATABASE_URL in main.py with your own.
+do not enter the comments.
 ```
 cd MediAI/backend
 
