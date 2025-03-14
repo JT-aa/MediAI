@@ -17,6 +17,7 @@ npm run dev
 the frontend will be running locally on http://localhost:5173/
 
 ### Backend Setup
+do not enter the comments
 ```
 cd MediAI/backend
 
