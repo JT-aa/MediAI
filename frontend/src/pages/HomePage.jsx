@@ -1,53 +1,23 @@
-// import { Button, message, Select } from "antd";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, Button, Row, Col, Modal, ListGroup } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Modal,
+  ListGroup,
+} from "react-bootstrap";
 
-const UserProfile = () => {
+const HomePage = () => {
   const BACKEND_API_URL = "http://127.0.0.1:8000";
   const [dbuser, setDbuser] = useState({});
   const [editedUser, setEditedUser] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [show, setShow] = useState(false);
   const [labResults, setLabResults] = useState([]);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-  const handleSaveLabResult = async () => {
-    if (!editedUser.user_id) {
-      console.error("User ID is missing");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("user_id", editedUser.user_id);
-    formData.append("date", document.getElementById("formDate").value);
-    formData.append("file", document.getElementById("formFile").files[0]);
-
-    try {
-      const response = await axios.post(
-        `${BACKEND_API_URL}/lab_reports/`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        console.log("Lab result saved successfully");
-        handleClose();
-        fetchLabResults();
-      } else {
-        console.error("Error uploading lab result");
-      }
-    } catch (error) {
-      console.error(error);
-      console.error("Error uploading lab result");
-    }
-  };
-  // const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     fetchUser();
@@ -61,9 +31,7 @@ const UserProfile = () => {
         setDbuser(response.data);
         setEditedUser(response.data);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => console.error(error));
   }
 
   function fetchLabResults() {
@@ -72,44 +40,7 @@ const UserProfile = () => {
       .then((response) => {
         setLabResults(response.data);
       })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
-  function handleDeleteLab(reportId) {
-    axios
-      .delete(`${BACKEND_API_URL}/lab_reports/${reportId}`)
-      .then((response) => {
-        console.log(`Lab result ${reportId} deleted successfully`);
-        // Fetch updated lab results
-        fetchLabResults();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
-  // useEffect(() => {
-  //   if (dbuser.id) {
-  //     fetchGroups();
-  //   }
-  // }, [dbuser]);
-
-  // function fetchGroups() {
-  //   axios
-  //     .get(`${process.env.REACT_APP_API_URL}/api/users/${dbuser.id}/groups`)
-  //     .then((response) => {
-  //       setGroups(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // }
-
-  function handleInputChange(event) {
-    const { name, value } = event.target;
-    setEditedUser({ ...editedUser, [name]: value });
+      .catch((error) => console.error(error));
   }
 
   function handleUpdate() {
@@ -119,216 +50,270 @@ const UserProfile = () => {
         setDbuser(response.data);
         setIsEditing(false);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => console.error(error));
   }
 
   return (
-    <div>
-      <Row>
-        <Col md={3}>
-          <h2>My Profile</h2>
-          <Form>
-            <Row className="mb-3">
-              <Form.Group as={Col}>
-                <Form.Label>Name:</Form.Label>
-                {isEditing ? (
+    <Container className="py-4">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "15vh",
+          textAlign: "center",
+        }}
+      >
+        <h1>
+          <img
+            src="/logo.png"
+            style={{ maxWidth: "50px", maxHeight: "50px" }}
+          />{" "}
+          MediAI
+        </h1>
+        <h4>On Device Medical Assistant</h4>
+      </div>
+      <Row className="mb-4">
+        <Col md={4}>
+          <Card>
+            <Card.Body>
+              <Card.Title className="mb-3">My Profile</Card.Title>
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>Name:</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
-                    value={editedUser.name}
-                    onChange={handleInputChange}
+                    value={editedUser.name || ""}
+                    readOnly={!isEditing}
+                    onChange={(e) =>
+                      setEditedUser({ ...editedUser, name: e.target.value })
+                    }
                   />
-                ) : (
-                  <Form.Control plaintext readOnly defaultValue={dbuser.name} />
-                )}
-              </Form.Group>
-            </Row>
-            {/* Add similar Form.Group components for other properties like gender, college, cohort, and phone */}
-            {/* <Row className="mb-3">
-              <Form.Group as={Col}>
-                <Form.Label>Age:</Form.Label>
-                <Form.Control plaintext readOnly defaultValue={user.age} />
-              </Form.Group>
-            </Row> */}
-            <Row className="mb-3">
-              <Form.Group as={Col}>
-                <Form.Label>Age:</Form.Label>
-                {isEditing ? (
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Age:</Form.Label>
                   <Form.Control
                     type="text"
                     name="age"
-                    value={editedUser.age}
-                    onChange={handleInputChange}
+                    value={editedUser.age || ""}
+                    readOnly={!isEditing}
+                    onChange={(e) =>
+                      setEditedUser({ ...editedUser, age: e.target.value })
+                    }
                   />
-                ) : (
-                  <Form.Control plaintext readOnly defaultValue={dbuser.age} />
-                )}
-              </Form.Group>
-            </Row>
-            {/* <Row className="mb-3">
-              <Form.Group as={Col}>
-                <Form.Label>Email verified:</Form.Label>
-                <Form.Control
-                  plaintext
-                  readOnly
-                  defaultValue={user.email_verified?.toString()}
-                />
-              </Form.Group>
-            </Row> */}
-            <Row className="mb-3">
-              <Form.Group as={Col}>
-                <Form.Label>Gender:</Form.Label>
-                <div key={`inline-radio`} className="mb-3">
-                  {isEditing ? (
-                    <div>
-                      <Form.Check
-                        inline
-                        label="male"
-                        name="gender"
-                        type="radio"
-                        id="inline-radio-male"
-                        value="male"
-                        checked={editedUser.gender === "male"}
-                        onChange={handleInputChange}
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Gender:</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="gender"
+                    value={editedUser.gender || ""}
+                    disabled={!isEditing}
+                    onChange={(e) =>
+                      setEditedUser({ ...editedUser, gender: e.target.value })
+                    }
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="others">Others</option>
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Height:</Form.Label>
+                  <Row>
+                    <Col xs={3}>
+                      <Form.Control
+                        type="text"
+                        name="height_ft"
+                        value={editedUser.height_ft || ""}
+                        readOnly={!isEditing}
+                        onChange={(e) =>
+                          setEditedUser({
+                            ...editedUser,
+                            height_ft: e.target.value,
+                          })
+                        }
+                        placeholder="Feet"
                       />
-                      <Form.Check
-                        inline
-                        label="female"
-                        name="gender"
-                        type="radio"
-                        id="inline-radio-female"
-                        value="female"
-                        checked={editedUser.gender === "female"}
-                        onChange={handleInputChange}
+                    </Col>
+                    <Col xs={1}>
+                      <p>'</p>
+                    </Col>
+                    <Col xs={3}>
+                      <Form.Control
+                        type="text"
+                        name="height_in"
+                        value={editedUser.height_in || ""}
+                        readOnly={!isEditing}
+                        onChange={(e) =>
+                          setEditedUser({
+                            ...editedUser,
+                            height_in: e.target.value,
+                          })
+                        }
+                        placeholder="Inches"
                       />
+                    </Col>
+                    <Col xs={1}>
+                      <p>"</p>
+                    </Col>
+                  </Row>
+                </Form.Group>
 
-                      <Form.Check
-                        inline
-                        label="others"
-                        name="gender"
-                        type="radio"
-                        id="inline-radio-female"
-                        value="others"
-                        checked={editedUser.gender === "others"}
-                        onChange={handleInputChange}
+                <Form.Group className="mb-3">
+                  <Form.Label>Weight:</Form.Label>
+                  <Row>
+                    <Col xs={3}>
+                      <Form.Control
+                        type="text"
+                        name="weight"
+                        value={editedUser.weight || ""}
+                        readOnly={!isEditing}
+                        onChange={(e) =>
+                          setEditedUser({
+                            ...editedUser,
+                            weight: e.target.value,
+                          })
+                        }
                       />
-                    </div>
-                  ) : (
-                    <Form.Control
-                      plaintext
-                      readOnly
-                      defaultValue={dbuser.gender}
-                    />
-                  )}
-                </div>
-              </Form.Group>
-            </Row>
+                    </Col>
+                    <Col xs={3}>
+                      <p>lbs</p>
+                    </Col>
+                  </Row>
+                </Form.Group>
 
-            <Row className="mb-3">
-              <Form.Group as={Col}>
-                <Form.Label>Weight:</Form.Label>
-                {isEditing ? (
-                  <Form.Control
-                    type="text"
-                    name="Weight"
-                    value={editedUser.weight}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    defaultValue={dbuser.weight}
-                  />
+                <Form.Group className="mb-3">
+                  <Form.Label>Body Fat:</Form.Label>
+                  <Row>
+                    <Col xs={3}>
+                      <Form.Control
+                        type="text"
+                        name="body_fat"
+                        value={editedUser.body_fat || ""}
+                        readOnly={!isEditing}
+                        onChange={(e) =>
+                          setEditedUser({
+                            ...editedUser,
+                            body_fat: e.target.value,
+                          })
+                        }
+                      />
+                    </Col>
+                    <Col xs={3}>
+                      <p>%</p>
+                    </Col>
+                  </Row>
+                </Form.Group>
+                {isEditing && (
+                  <Button
+                    variant="success"
+                    className="ms-2"
+                    onClick={handleUpdate}
+                  >
+                    Save
+                  </Button>
                 )}
-              </Form.Group>
-            </Row>
-            <Row className="mb-3">
-              <Form.Group as={Col}>
-                <Form.Label>Body Fat:</Form.Label>
-                {isEditing ? (
-                  <Form.Control
-                    type="text"
-                    name="body_fat"
-                    value={editedUser.body_fat}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <Form.Control
-                    plaintext
-                    readOnly
-                    defaultValue={dbuser.body_fat}
-                  />
-                )}
-              </Form.Group>
-            </Row>
-            <Button onClick={() => setIsEditing(!isEditing)}>
-              {isEditing ? "Cancel" : "Edit"}
-            </Button>
-            {isEditing && <Button onClick={handleUpdate}>Save</Button>}
-          </Form>
+                <span> </span>
+                <Button
+                  variant={isEditing ? "secondary" : "primary"}
+                  onClick={() => setIsEditing(!isEditing)}
+                >
+                  {isEditing ? "Cancel" : "Edit"}
+                </Button>
+              </Form>
+            </Card.Body>
+          </Card>
         </Col>
 
-        {/* <Col md={9}>
-          <h2>My Groups</h2>
-          <Row>
-            {groups.map((group) => (
-              <Col key={group.id} sm={12} md={6} lg={4} xl={3}>
-                <GroupCard group={group} />
-              </Col>
-            ))}
-          </Row>
-        </Col> */}
+        <Col md={8}>
+          <Card>
+            <Card.Body>
+              <Card.Title className="mb-3">My Lab Results</Card.Title>
+              <ListGroup>
+                {labResults.map((labResult) => (
+                  <ListGroup.Item
+                    key={labResult.report_id}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    <a
+                      href={`/lab-result/${labResult.report_id}`}
+                      className="text-decoration-none"
+                    >
+                      Lab Result {labResult.report_id} - {labResult.date}
+                    </a>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() =>
+                        axios
+                          .delete(
+                            `${BACKEND_API_URL}/lab_reports/${labResult.report_id}`
+                          )
+                          .then(fetchLabResults)
+                      }
+                    >
+                      Delete
+                    </Button>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+              <Button className="mt-3" onClick={() => setShow(true)}>
+                Add New Lab Result
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
       </Row>
 
-      <Button variant="primary" onClick={handleShow}>
-        Add New Lab Result
-      </Button>
-
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Add New Lab Result</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group controlId="formDate" className="mb-3">
-            <Form.Label>Select Date:</Form.Label>
-            <Form.Control type="date" />
-          </Form.Group>
-          <Form.Group controlId="formFile" className="mb-3">
-            <Form.Label>Choose Lab Result File:</Form.Label>
-            <Form.Control type="file" />
-          </Form.Group>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Date</Form.Label>
+              <Form.Control type="date" id="formDate" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>File</Form.Label>
+              <Form.Control type="file" id="formFile" />
+            </Form.Group>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={() => setShow(false)}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSaveLabResult}>
-            Save Changes
+          <Button
+            variant="primary"
+            onClick={async () => {
+              const formData = new FormData();
+              formData.append("user_id", editedUser.user_id);
+              formData.append(
+                "date",
+                document.getElementById("formDate").value
+              );
+              formData.append(
+                "file",
+                document.getElementById("formFile").files[0]
+              );
+              await axios.post(`${BACKEND_API_URL}/lab_reports/`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              });
+              setShow(false);
+              fetchLabResults();
+            }}
+          >
+            Save
           </Button>
         </Modal.Footer>
       </Modal>
-
-      <h2>My Lab Results</h2>
-      <ListGroup>
-        {labResults.map((labResult) => (
-          <ListGroup.Item key={labResult.report_id}>
-            <a href={`/lab-result/${labResult.report_id}`}>
-              Lab Result {labResult.report_id} {labResult.date}
-            </a>
-            <Button
-              variant="danger"
-              onClick={() => handleDeleteLab(labResult.report_id)}
-            >
-              Delete
-            </Button>
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
-    </div>
+    </Container>
   );
 };
 
-export default UserProfile;
+export default HomePage;

@@ -1,11 +1,15 @@
 from fastapi import FastAPI, File, UploadFile, Depends, Form
 from sqlalchemy import Column, Integer, String, create_engine, Date, LargeBinary, Text
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.mysql import LONGBLOB
 from sqlalchemy.orm import sessionmaker, Session
 import onnxruntime as ort
 import numpy as np
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response  # <-- Import Response
+from fastapi.exceptions import HTTPException  # <-- Import HTTPException
+
 
 import pymysql
 pymysql.install_as_MySQLdb()
@@ -43,7 +47,7 @@ class LabReport(Base):
     report_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
     date = Column(Date, index=True) 
-    file_blob = Column(LargeBinary, nullable=False) 
+    file_blob = Column(LONGBLOB, nullable=False) 
     extracted_text = Column(Text)
     analysis = Column(Text) 
 
@@ -109,7 +113,7 @@ def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_d
     return user
 
 @app.post("/lab_reports/")
-def create_lab_report(
+async def create_lab_report(
     user_id: int = Form(...), 
     date: str = Form(...), 
     file: UploadFile = File(...), 
@@ -117,12 +121,14 @@ def create_lab_report(
 ):
     try:
         # Log input data for debugging
-        print(f"Received user_id: {user_id}, date: {date}, file size: {len(file.file.read())}")
+        print(f"Received user_id: {user_id}, date: {date}, file size: {len(await file.read())}")
         
         # Re-read the file as the read() call above consumes the content
-        file.seek(0)  # Reset the pointer to the start of the file
+        await file.seek(0)  # Reset the pointer to the start of the file
         
-        lab_report = LabReport(user_id=user_id, date=date, file_blob=file.file.read())
+        file_content = await file.read()  # Now read the content asynchronously
+        lab_report = LabReport(user_id=user_id, date=date, file_blob=file_content)
+        
         db.add(lab_report)
         db.commit()  # Commit the transaction
         
@@ -130,7 +136,13 @@ def create_lab_report(
         db.refresh(lab_report)
         print(f"Inserted LabReport with report_id: {lab_report.report_id}")
         
-        return lab_report
+        # Return metadata excluding the binary file content
+        return {
+            "report_id": lab_report.report_id,
+            "user_id": lab_report.user_id,
+            "date": lab_report.date,
+            "message": "Lab report uploaded successfully"
+        }
     except Exception as e:
         print(f"Error inserting lab report: {e}")
         return {"error": str(e)}
@@ -141,15 +153,29 @@ def read_lab_report(report_id: int, db: Session = Depends(get_db)):
     lab_report = db.query(LabReport).filter(LabReport.report_id == report_id).first()
     if lab_report is None:
         return {"message": "Lab report not found"}
-    return lab_report
+    return {
+            "report_id": lab_report.report_id,
+            "user_id": lab_report.user_id,
+            "date": lab_report.date
+        }
 
 # get lab report information by user_id from the mysql database
 @app.get("/lab_reports/user/{user_id}")
-def read_lab_report(user_id: int, db: Session = Depends(get_db)):
+def read_lab_reports(user_id: int, db: Session = Depends(get_db)):
     lab_reports = db.query(LabReport).filter(LabReport.user_id == user_id).all()
-    if lab_reports is None:
+    
+    if not lab_reports:
         return {"message": "Lab reports not found"}
-    return lab_reports
+    
+    # Return only metadata (report_id, user_id, date) for each lab report
+    return [
+        {
+            "report_id": report.report_id,
+            "user_id": report.user_id,
+            "date": report.date
+        }
+        for report in lab_reports
+    ]
 
 @app.delete("/lab_reports/{report_id}")
 def delete_lab_report(report_id: int, db: Session = Depends(get_db)):
@@ -159,6 +185,15 @@ def delete_lab_report(report_id: int, db: Session = Depends(get_db)):
     db.delete(lab_report)
     db.commit()
     return {"message": "Lab report deleted"}
+
+# get lab report PDF by report_id from the mysql database
+@app.get("/lab_reports/{report_id}/pdf")
+def get_pdf(report_id: int, db: Session = Depends(get_db)):
+    lab_report = db.query(LabReport).filter(LabReport.report_id == report_id).first()
+    if not lab_report:
+        raise HTTPException(status_code=404, detail="Lab report not found")
+    pdf_data = lab_report.file_blob  # Assuming `pdf_file` holds the PDF binary data in the DB
+    return Response(pdf_data, media_type="application/pdf")
 
 
 
