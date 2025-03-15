@@ -352,6 +352,10 @@ const HomePage = () => {
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
+              <Form.Label>Lab Name</Form.Label>
+              <Form.Control type="name" id="formName" />
+            </Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label>Date</Form.Label>
               <Form.Control type="date" id="formDate" />
             </Form.Group>
@@ -373,6 +377,10 @@ const HomePage = () => {
               formData.append(
                 "date",
                 document.getElementById("formDate").value
+              );
+              formData.append(
+                "name",
+                document.getElementById("formName").value
               );
               formData.append(
                 "file",

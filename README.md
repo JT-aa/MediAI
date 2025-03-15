@@ -26,8 +26,8 @@ cd MediAI/backend
 python -m venv venv  # Create virtual environment
 source venv/bin/activate  # Activate (Linux/Mac)
 venv\Scripts\activate  # Activate (Windows)
-pip install fastapi uvicorn onnxruntime pydantic numpy sqlalchemy pymysql mysqlclient cryptography
 
+pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 the backend will be running locally on http://127.0.0.1:8000/

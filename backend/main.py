@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response  # <-- Import Response
 from fastapi.exceptions import HTTPException  # <-- Import HTTPException
+from PyPDF2 import PdfReader
 
 
 import pymysql
@@ -76,6 +77,15 @@ app.add_middleware(
 # Load ONNX Model (Example)
 # onnx_model = ort.InferenceSession("model.onnx")
 
+def read_pdf(file) -> str:
+    """Read content from a PDF file-like object."""
+    try:
+        reader = PdfReader(file)
+        text = "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
+        return text
+    except Exception as e:
+        raise ValueError(f"Error reading PDF file: {e}")
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to MediAI Backend!"}
@@ -118,36 +128,36 @@ def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_d
 async def create_lab_report(
     user_id: int = Form(...), 
     date: str = Form(...), 
+    name: str = Form(...),
     file: UploadFile = File(...), 
     db: Session = Depends(get_db)
 ):
     try:
-        # Log input data for debugging
-        print(f"Received user_id: {user_id}, date: {date}, file size: {len(await file.read())}")
-        
-        # Re-read the file as the read() call above consumes the content
-        await file.seek(0)  # Reset the pointer to the start of the file
-        
-        file_content = await file.read()  # Now read the content asynchronously
-        lab_report = LabReport(user_id=user_id, date=date, file_blob=file_content)
-        
+        file_content = await file.read()  # Read file content as binary
+        await file.seek(0)  # Reset the pointer to allow re-reading
+        extracted_text = read_pdf(file.file)  # Pass file-like object
+
+        lab_report = LabReport(
+            user_id=user_id, 
+            name=name, 
+            date=date, 
+            file_blob=file_content, 
+            extracted_text=extracted_text
+        )
+
         db.add(lab_report)
-        db.commit()  # Commit the transaction
-        
-        # Refresh and log the inserted lab report
+        db.commit()
         db.refresh(lab_report)
-        print(f"Inserted LabReport with report_id: {lab_report.report_id}")
-        
-        # Return metadata excluding the binary file content
+
         return {
             "report_id": lab_report.report_id,
             "user_id": lab_report.user_id,
             "date": lab_report.date,
+            "name": lab_report.name,
             "message": "Lab report uploaded successfully"
         }
     except Exception as e:
-        print(f"Error inserting lab report: {e}")
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=f"Error processing lab report: {e}")
 
 # get lab report information by report_id from the mysql database
 @app.get("/lab_reports/{report_id}")

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+onnxruntime
+pydantic
+numpy
+sqlalchemy
+pymysql
+mysqlclient
+cryptography
+PyPDF2
