@@ -53,6 +53,8 @@ const HomePage = () => {
       return new Date(a.date) - new Date(b.date);
     } else if (sortCriteria === "risk_level") {
       return b.risk_level - a.risk_level;
+    } else if (sortCriteria === "name") {
+      return a.name.localeCompare(b.name);
     }
     return 0;
   });
@@ -280,6 +282,7 @@ const HomePage = () => {
                   onChange={(e) => setSortCriteria(e.target.value)}
                 >
                   <option value="id">ID</option>
+                  <option value="name">Name</option>
                   <option value="date">Date</option>
                   <option value="risk_level">Risk Level</option>
                 </Form.Control>
@@ -298,7 +301,8 @@ const HomePage = () => {
                         href={`/lab-result/${labResult.report_id}`}
                         className="text-decoration-none"
                       >
-                        Lab Result {labResult.report_id} - {labResult.date}
+                        Lab Result {labResult.report_id} - {labResult.name} -{" "}
+                        {labResult.date}
                       </a>
                       <div className="d-flex align-items-center">
                         <Button

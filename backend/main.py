@@ -160,6 +160,7 @@ def read_lab_report(report_id: int, db: Session = Depends(get_db)):
             "user_id": lab_report.user_id,
             "date": lab_report.date,
             "risk_level": lab_report.risk_level,
+            "name": lab_report.name,
         }
 
 # get lab report information by user_id from the mysql database
@@ -177,6 +178,7 @@ def read_lab_reports(user_id: int, db: Session = Depends(get_db)):
             "user_id": report.user_id,
             "date": report.date,
             "risk_level": report.risk_level,
+            "name": report.name,
         }
         for report in lab_reports
     ]
