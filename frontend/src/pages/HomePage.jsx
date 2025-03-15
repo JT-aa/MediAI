@@ -34,7 +34,7 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchUser();
-    fetchLabResults();
+    // fetchLabResults();
     fetchHealthScore();
   }, []);
 
@@ -319,7 +319,7 @@ const HomePage = () => {
                 </Form.Control>
               </Form.Group>
               <ListGroup>
-                {sortedLabResults.length === 0 ? (
+                {labResults.length === 0 || sortedLabResults.length === 0 ? (
                   <ListGroup.Item className="text-center text-muted">
                     No Existing Lab Results Yet
                   </ListGroup.Item>
