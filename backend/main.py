@@ -3,8 +3,8 @@ from sqlalchemy import Column, Integer, String, create_engine, Date, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import LONGBLOB
 from sqlalchemy.orm import sessionmaker, Session
-import onnxruntime as ort
-import numpy as np
+# import onnxruntime as ort
+# import numpy as np
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response  # <-- Import Response
@@ -17,7 +17,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 # MySQL Database setup
-DATABASE_URL = "mysql://root:12345678@localhost:3306/mediai"  # Update with your actual credentials
+DATABASE_URL = "mysql://root:abc123456@localhost:3306/mediai"  # Update with your actual credentials
 
 # Set up SQLAlchemy
 Base = declarative_base()

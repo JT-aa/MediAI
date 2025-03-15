@@ -66,18 +66,18 @@ const HomePage = () => {
       .catch((error) => console.error(error));
   }
 
-  const sortedLabResults = [...labResults].sort((a, b) => {
-    if (sortCriteria === "id") {
-      return a.report_id - b.report_id;
-    } else if (sortCriteria === "date") {
-      return new Date(a.date) - new Date(b.date);
-    } else if (sortCriteria === "risk_level") {
-      return b.risk_level - a.risk_level;
-    } else if (sortCriteria === "name") {
-      return a.name.localeCompare(b.name);
-    }
-    return 0;
-  });
+ const sortedLabResults = Array.isArray(labResults) ? [...labResults].sort((a, b) => {
+  if (sortCriteria === "id") {
+    return a.report_id - b.report_id;
+  } else if (sortCriteria === "date") {
+    return new Date(a.date) - new Date(b.date);
+  } else if (sortCriteria === "risk_level") {
+    return b.risk_level - a.risk_level;
+  } else if (sortCriteria === "name") {
+    return a.name.localeCompare(b.name);
+  }
+  return 0;
+}) : [];
 
   function handleDeleteConfirm() {
     if (selectedReportId) {
