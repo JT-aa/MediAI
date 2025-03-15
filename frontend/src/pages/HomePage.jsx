@@ -11,6 +11,7 @@ import {
   ListGroup,
 } from "react-bootstrap";
 import { Flex, Progress } from "antd";
+import HealthAlert from "../components/HealthAlert";
 
 const HomePage = () => {
   const BACKEND_API_URL = "http://127.0.0.1:8000";
@@ -34,6 +35,7 @@ const HomePage = () => {
   useEffect(() => {
     fetchUser();
     fetchLabResults();
+    fetchHealthScore();
   }, []);
 
   function fetchUser() {
@@ -51,6 +53,15 @@ const HomePage = () => {
       .get(`${BACKEND_API_URL}/lab_reports/user/1`)
       .then((response) => {
         setLabResults(response.data);
+      })
+      .catch((error) => console.error(error));
+  }
+
+  function fetchHealthScore() {
+    axios
+      .get(`${BACKEND_API_URL}/health_score/1`)
+      .then((response) => {
+        setHealthScore(response.data.health_score);
       })
       .catch((error) => console.error(error));
   }
@@ -90,6 +101,15 @@ const HomePage = () => {
       .catch((error) => console.error(error));
   }
 
+  function handleRecalculate() {
+    axios
+      .get(`${BACKEND_API_URL}/health_score/1`)
+      .then((response) => {
+        setHealthScore(response.data.health_score);
+      })
+      .catch((error) => console.error(error));
+  }
+
   // Function to determine button style based on risk level
   const getRiskLevelButton = (riskLevel) => {
     switch (riskLevel) {
@@ -125,6 +145,8 @@ const HomePage = () => {
         </h1>
         <h4>On Device Medical Assistant</h4>
       </div>
+      <Row className="mt-4"></Row>
+
       <Row className="mb-4">
         <Col md={4}>
           <Card>
@@ -347,14 +369,21 @@ const HomePage = () => {
             <Card.Body>
               <Card.Title className="mb-3">
                 My Health Score
-                <Button style={{ marginLeft: "16px" }}>Recalculate</Button>
+                <Button
+                  style={{ marginLeft: "16px" }}
+                  onClick={handleRecalculate}
+                >
+                  Recalculate
+                </Button>
               </Card.Title>
-              <Progress
+              {/* <Progress
                 type="dashboard"
-                percent={healthScore}
+                percent={Math.ceil(healthScore)}
                 format={(percent) => `${percent}`}
                 strokeColor={conicColors}
-              />
+              /> */}
+
+              <HealthAlert healthScore={healthScore} />
             </Card.Body>
           </Card>
           <Row className="mt-4"></Row>

@@ -55,6 +55,7 @@ class LabReport(Base):
     extracted_text = Column(Text)
     analysis = Column(Text) 
     risk_level = Column(Integer)
+    risk_score = Column(Integer)
 
 # Create the tables in the database (usually done once during app initialization)
 Base.metadata.create_all(bind=engine)
@@ -233,6 +234,13 @@ def get_pdf(report_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Lab report not found")
     pdf_data = lab_report.file_blob  # Assuming `pdf_file` holds the PDF binary data in the DB
     return Response(pdf_data, media_type="application/pdf")
+
+@app.get("/health_score/{user_id}")
+def get_health_score(user_id: int, db: Session = Depends(get_db)):
+    lab_reports = db.query(LabReport).filter(LabReport.user_id == user_id).all()
+    risk_scores = [report.risk_score for report in lab_reports if report.risk_score is not None]
+    health_score = calculate_health_score(risk_scores)
+    return {"user_id": user_id, "health_score": health_score}
 
 
 

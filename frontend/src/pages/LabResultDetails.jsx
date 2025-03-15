@@ -51,7 +51,7 @@ const LabResultDetails = () => {
         </h1>
         <h4>On Device Medical Assistant</h4>
       </div>
-
+      <Row className="mt-4"></Row>
       {/* Lab Result Details */}
       <Row className="mb-4">
         <Col md={6}>
