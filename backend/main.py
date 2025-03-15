@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response  # <-- Import Response
 from fastapi.exceptions import HTTPException  # <-- Import HTTPException
 from PyPDF2 import PdfReader
+import math
 
 
 import pymysql
@@ -41,6 +42,7 @@ class User(Base):
     height_in = Column(Integer, index=True)
     weight = Column(Integer, index=True)
     body_fat = Column(Integer, index=True)
+    health_score = Column(Integer, index=True)
 
 # Define Lab report model
 class LabReport(Base):
@@ -85,6 +87,27 @@ def read_pdf(file) -> str:
         return text
     except Exception as e:
         raise ValueError(f"Error reading PDF file: {e}")
+
+import math
+
+def calculate_health_score(risk_scores, alpha=0.07):
+    """
+    Calculate the overall health score based on a list of risk scores.
+    
+    Parameters:
+        risk_scores (list of float): A list of risk scores (0-100).
+        alpha (float): Sensitivity factor that controls how much high-risk values impact the score.
+    
+    Returns:
+        float: The health score (0-100), where 100 is the healthiest.
+    """
+    if not risk_scores:
+        return 100  # If no risk scores are provided, assume perfect health
+
+    penalty = sum(math.exp(alpha * (r - 50)) for r in risk_scores)
+    health_score = 100 / (1 + penalty)
+
+    return round(health_score, 2)
 
 @app.get("/")
 def read_root():

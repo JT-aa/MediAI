@@ -10,6 +10,7 @@ import {
   Modal,
   ListGroup,
 } from "react-bootstrap";
+import { Flex, Progress } from "antd";
 
 const HomePage = () => {
   const BACKEND_API_URL = "http://127.0.0.1:8000";
@@ -21,6 +22,14 @@ const HomePage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [sortCriteria, setSortCriteria] = useState("id"); // Default sorting by ID
+  const [healthScore, setHealthScore] = useState(50);
+  const [overallRecommendations, setOverallRecommendations] = useState([]);
+
+  const conicColors = {
+    "0%": "#FF0000",
+    "50%": "#FFFF00",
+    "100%": "#008000",
+  };
 
   useEffect(() => {
     fetchUser();
@@ -330,6 +339,22 @@ const HomePage = () => {
               <Button className="mt-3" onClick={() => setShow(true)}>
                 Add New Lab Result
               </Button>
+            </Card.Body>
+          </Card>
+          <Row className="mt-4"></Row>
+
+          <Card>
+            <Card.Body>
+              <Card.Title className="mb-3">
+                My Health Score
+                <Button style={{ marginLeft: "16px" }}>Recalculate</Button>
+              </Card.Title>
+              <Progress
+                type="dashboard"
+                percent={healthScore}
+                format={(percent) => `${percent}`}
+                strokeColor={conicColors}
+              />
             </Card.Body>
           </Card>
           <Row className="mt-4"></Row>
