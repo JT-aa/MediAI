@@ -319,44 +319,50 @@ const HomePage = () => {
                 </Form.Control>
               </Form.Group>
               <ListGroup>
-                {sortedLabResults.map((labResult) => {
-                  const { variant, text } = getRiskLevelButton(
-                    labResult.risk_level
-                  );
-                  return (
-                    <ListGroup.Item
-                      key={labResult.report_id}
-                      className="d-flex justify-content-between align-items-center"
-                    >
-                      <a
-                        href={`/lab-result/${labResult.report_id}`}
-                        className="text-decoration-none"
+                {sortedLabResults.length === 0 ? (
+                  <ListGroup.Item className="text-center text-muted">
+                    No Existing Lab Results Yet
+                  </ListGroup.Item>
+                ) : (
+                  sortedLabResults.map((labResult) => {
+                    const { variant, text } = getRiskLevelButton(
+                      labResult.risk_level
+                    );
+                    return (
+                      <ListGroup.Item
+                        key={labResult.report_id}
+                        className="d-flex justify-content-between align-items-center"
                       >
-                        Lab Result {labResult.report_id} - {labResult.name} -{" "}
-                        {labResult.date}
-                      </a>
-                      <div className="d-flex align-items-center">
-                        <Button
-                          variant={variant}
-                          size="sm"
-                          style={{ width: "80px", marginRight: "10px" }}
+                        <a
+                          href={`/lab-result/${labResult.report_id}`}
+                          className="text-decoration-none"
                         >
-                          {text}
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedReportId(labResult.report_id);
-                            setShowDeleteModal(true);
-                          }}
-                        >
-                          x
-                        </Button>
-                      </div>
-                    </ListGroup.Item>
-                  );
-                })}
+                          Lab Result {labResult.report_id} - {labResult.name} -{" "}
+                          {labResult.date}
+                        </a>
+                        <div className="d-flex align-items-center">
+                          <Button
+                            variant={variant}
+                            size="sm"
+                            style={{ width: "80px", marginRight: "10px" }}
+                          >
+                            {text}
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedReportId(labResult.report_id);
+                              setShowDeleteModal(true);
+                            }}
+                          >
+                            x
+                          </Button>
+                        </div>
+                      </ListGroup.Item>
+                    );
+                  })
+                )}
               </ListGroup>
               <Button className="mt-3" onClick={() => setShow(true)}>
                 Add New Lab Result
