@@ -87,3 +87,57 @@ class Api:
             print(f"HTTP error occurred: {err}")
         except requests.exceptions.RequestException as err:
             print(f"An error occurred: {err}")
+
+    def generate_overall_report(self, lab_reports):
+        prompt = '''
+        You are a health assistant designed to analyze a list of body reports and generate an overall health report. The input will be a list of strings, where each string represents a body report containing metrics such as blood pressure, cholesterol levels, blood sugar, BMI, and other relevant health data. Your task is to:
+
+        1. **Analyze Each Report**:
+        - Extract and summarize the key metrics from each body report.
+        - Identify any abnormal values or health risks in each report.
+
+        2. **Identify Trends Across Reports**:
+        - Compare the metrics across all reports to identify trends (e.g., increasing blood pressure, improving cholesterol levels, etc.).
+        - Highlight any consistent health issues or improvements.
+
+        3. **Generate an Overall Health Score**:
+        - Assign an overall health score out of 10, where 10 is excellent health and 1 is poor health.
+        - Explain the rationale behind the score.
+
+        4. **Provide Recommendations**:
+        - Suggest specific actions to address the identified health risks.
+        - Provide general recommendations for maintaining or improving health.
+
+        5. **Suggest Lifestyle Changes**:
+        - Recommend long-term lifestyle changes based on the trends and risks identified.
+        - Explain how these changes will benefit the user.
+
+        ---
+
+        ### **Input**:\n
+        '''
+        counter = 1
+        for lab_report in lab_reports:
+            if lab_report:
+                prompt += f"report {counter}: " + "analysis: " + lab_report.analysis + "\n" 
+                + "lifestyle change suggestions: " + lab_report.lifestyle_change_suggestions + "\n" 
+                + "medical recommendations: " + lab_report.medical_recommendations + "\n"
+                counter += 1
+        
+        # sending a prompt to AnythingLLM
+        url = self.base_url + f"/v1/workspace/{self.slug}/chat"
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "message": prompt,
+            "mode": "chat"
+        }
+        try:
+            response = requests.post(url, json=payload, headers=headers)
+            return response.json()["textResponse"]
+        except requests.exceptions.HTTPError as err:
+            print(f"HTTP error occurred: {err}")
+        except requests.exceptions.RequestException as err:
+            print(f"An error occurred: {err}")

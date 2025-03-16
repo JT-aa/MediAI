@@ -20,13 +20,18 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 # MySQL Database setup
-DATABASE_URL = "mysql://root:abc123456@localhost:3306/mediai"  # Update with your actual credentials
+DATABASE_URL = "mysql+pymysql://root:271828@localhost:3306/mediai"  # Update with your actual credentials
 
 # Set up SQLAlchemy
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+#Set up AnythingLLM Api
+token = "XVHW5FD-Q5B4J3M-JT0QV70-X0S0HNM"
+base_url = "http://localhost:3001/api"
+slug = "my-workplace"
+anythingllmapi = api.Api(token, base_url, slug)
 
 def get_db():
   db = SessionLocal()
@@ -48,7 +53,7 @@ class User(Base):
   weight = Column(Integer, index=True)
   body_fat = Column(Integer, index=True)
   health_score = Column(Integer, index=True)
-
+  overall_report = Column(String(255), index=True)
 
 # Define Lab report model
 class LabReport(Base):
@@ -277,13 +282,19 @@ def get_health_score(user_id: int, db: Session = Depends(get_db)):
 
 @app.put("/lab_reports/{report_id}/analysis")
 def update_analysis(report_id: int, db: Session = Depends(get_db)):
-    token = "XVHW5FD-Q5B4J3M-JT0QV70-X0S0HNM"
-    base_url = "http://localhost:3001/api"
-    slug = "my-workplace"
-    newapi = api.Api(token, base_url, slug)
     lab_report = db.query(LabReport).filter(LabReport.report_id == report_id).first()
     if lab_report:
-        lab_report.analysis = newapi.send_prompt(lab_report.extracted_text)
+        lab_report.analysis = anythingllmapi.send_prompt(lab_report.extracted_text)
         db.commit()
         db.refresh(lab_report)
     return lab_report
+
+@app.put("/users/{user_id}/overall_report")
+def update_overall_report(user_id: int, db: Session = Depends(get_db)):
+    lab_reports = db.query(LabReport).filter(LabReport.user_id == user_id).all()
+    print(lab_reports)
+    user = db.query(User).filter(User.user_id == user_id).first()
+    '''user.overall_report = anythingllmapi.generate_overall_report(lab_reports)
+    db.commit()
+    db.refresh(user)'''
+    return user
