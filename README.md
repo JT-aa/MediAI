@@ -75,9 +75,18 @@ Then the system will the Report
 
 Wait approximately 30 seconds for the AI to analyze your report.
 The risk level will update from "Pending" to its corresponding category based on your health data.
+
+
+
+
+
 View Detailed Analysis
 
 Click "View Report" to access a comprehensive breakdown of your lab results, including:
 Health Score
 Potential Risks
 Personalized Recommendations
+
+
+## Screenshots:
+https://1drv.ms/f/s!AkeLUvIyHyo1ijMKuRwa1wwtOmNn?e=KYZogc
