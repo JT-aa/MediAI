@@ -29,16 +29,14 @@ const HomePage = () => {
   const [healthScore, setHealthScore] = useState(50);
   const [overallRecommendations, setOverallRecommendations] = useState([]);
   const [riskTrendData, setRiskTrendData] = useState([]);
+  const [healthTrend, setHealthTrend] = useState(null);
+  const [trend, setTrend] = useState(null);
+
 
   const conicColors = {
     "0%": "#FF0000", "50%": "#FFFF00", "100%": "#008000",
   };
   const columns = [{
-    title: "Report ID",
-    dataIndex: "report_id",
-    key: "report_id",
-    sorter: (a, b) => a.report_id - b.report_id,
-  }, {
     title: "Lab Name",
     dataIndex: "name",
     key: "name",
@@ -52,6 +50,7 @@ const HomePage = () => {
     title: "Risk Level",
     dataIndex: "risk_level",
     key: "risk_level",
+    sorter: (a, b) => a.risk_level - b.risk_level,
     render: (risk_level) => {
       let color = "default";
       let text = "Unknown";
@@ -68,24 +67,61 @@ const HomePage = () => {
       return <Tag color={color}>{text}</Tag>;
     },
   }, {
-    title: "Actions", key: "actions", render: (_, record) => (<Button
+    title: "Actions", key: "actions", render: (_, record) => (    
+      <div>
+      {/* View button linked to the backend API */}
+      <Button
+        type="link"
+        href={`/lab-result/${record.report_id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View
+      </Button>
+
+      {/* Delete button */}
+      <Button
         type="primary"
         danger
         onClick={() => {
           setSelectedReportId(record.report_id);
           setShowDeleteModal(true);
         }}
-    >
-      Delete
-    </Button>),
+      >
+        Delete
+      </Button>
+    </div>),
   },];
 
   useEffect(() => {
     fetchUser();
     fetchLabResults();
     fetchHealthScore();
-
+    fetchTrend();
   }, []);
+
+  function fetchTrend() {
+    axios
+    .get(`${BACKEND_API_URL}/trend`)
+    .then((response) => {
+      setTrend(response.data.trend);
+    })
+    .catch((error) => console.error(error));
+  }
+
+  // Function to call the API when Regenerate button is clicked
+const handleRegenerate = () => {
+  axios
+    .put(`${BACKEND_API_URL}/trend`)
+    .then(() => {
+      message.success("Trend updated successfully!");
+    })
+    .catch((error) => {
+      console.error("Error updating trend:", error);
+      message.error("Failed to update trend. Please try again.");
+    });
+};
+
 
   function fetchUser() {
     axios
@@ -120,7 +156,7 @@ const HomePage = () => {
   // Format Data for Recharts with Proper Date Formatting
   function formatRiskTrendData(labResults) {
     const formattedData = labResults
-    .filter((result) => result.risk_score !== null) // Ensure risk score exists
+    .filter((result) => result.health_score !== null) // Ensure risk score exists
     .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort by date
     .map((result) => ({
       date: new Date(result.date).toLocaleDateString("en-US", {
@@ -128,7 +164,7 @@ const HomePage = () => {
         month: "short",
         day: "numeric",
       }), // Format: "Feb 10, 2024"
-      riskScore: result.risk_score, // Y-axis (risk score)
+      Score: result.health_score, // Y-axis (risk score)
     }));
     setRiskTrendData(formattedData);
   }
@@ -141,6 +177,8 @@ const HomePage = () => {
       month: "short",
     }).format(date);
   }
+
+
 
   const sortedLabResults = Array.isArray(labResults) ? [...labResults].sort(
       (a, b) => {
@@ -342,7 +380,7 @@ const HomePage = () => {
                 </Row>
               </Form.Group>
               {isEditing && (<Button
-                  variant="success"
+                  type="primary"
                   className="ms-2"
                   onClick={handleUpdate}
               >
@@ -350,7 +388,7 @@ const HomePage = () => {
               </Button>)}
               <span> </span>
               <Button
-                  variant={isEditing ? "secondary" : "primary"}
+                  type={isEditing ? "secondary" : "primary"}
                   onClick={() => setIsEditing(!isEditing)}
               >
                 {isEditing ? "Cancel" : "Edit"}
@@ -363,8 +401,10 @@ const HomePage = () => {
       <Col md={8}>
         <Card>
           <Card.Body>
-            <Card.Title className="mb-3">My Lab Results</Card.Title>
-            <Form.Group className="mb-3">
+            <Card.Title className="mb-3">My Lab Results <Button type="primary" className="mt-3" style={{marginLeft: "400px"}} onClick={() => setShow(true)}>
+              Add New Lab Result
+            </Button></Card.Title>
+            {/* <Form.Group className="mb-3">
               <Form.Label>Sort By:</Form.Label>
               <Form.Control
                   as="select"
@@ -376,7 +416,7 @@ const HomePage = () => {
                 <option value="date">Date</option>
                 <option value="risk_level">Risk Level</option>
               </Form.Control>
-            </Form.Group>
+            </Form.Group> */}
             <Table
                 columns={columns}
                 dataSource={sortedLabResults}
@@ -431,9 +471,7 @@ const HomePage = () => {
             {/*      })*/}
             {/*  )}*/}
             {/*</ListGroup>*/}
-            <Button className="mt-3" onClick={() => setShow(true)}>
-              Add New Lab Result
-            </Button>
+            
           </Card.Body>
         </Card>
         <Row className="mt-4"></Row>
@@ -442,12 +480,12 @@ const HomePage = () => {
           <Card.Body>
             <Card.Title className="mb-3">
               My Health Score
-              <Button
+              {/* <Button
                   style={{marginLeft: "16px"}}
                   onClick={handleRecalculate}
               >
                 Recalculate
-              </Button>
+              </Button> */}
             </Card.Title>
             {/* <Progress
                 type="dashboard"
@@ -465,7 +503,7 @@ const HomePage = () => {
         {/* Risk Score Trend Line Chart */}
         <Card>
           <Card.Body>
-            <Card.Title>Risk Score Trend</Card.Title>
+            <Card.Title>My Health Trend <Button type="primary" style={{ marginLeft: "420px" }} onClick={handleRegenerate}>Regenerate</Button></Card.Title>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={riskTrendData} margin={{ top: 20, right: 20, bottom: 50, left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3"/>
@@ -481,7 +519,7 @@ const HomePage = () => {
                 <Tooltip/>
                 <Line
                     type="monotone"
-                    dataKey="riskScore"
+                    dataKey="Score"
                     stroke="#ff7300"
                     strokeWidth={3}
                     dot={{fill: "#ff7300", r: 5}}
@@ -489,19 +527,22 @@ const HomePage = () => {
                 />
               </LineChart>
             </ResponsiveContainer>
+            <div style={{textAlign: "center"}}>
+              <p>{trend}</p>
+            </div>
           </Card.Body>
         </Card>
 
         <Row className="mt-4"></Row>
 
-        <Card>
+        {/* <Card>
           <Card.Body>
             <Card.Title className="mb-3">
               Overall Recommendations
               <Button style={{marginLeft: "16px"}}>Regenerate</Button>
             </Card.Title>
           </Card.Body>
-        </Card>
+        </Card> */}
       </Col>
 
     </Row>
@@ -531,7 +572,7 @@ const HomePage = () => {
           Close
         </Button>
         <Button
-            variant="primary"
+            type="primary"
             onClick={async () => {
               const formData = new FormData();
               formData.append("user_id", editedUser.user_id);
@@ -541,10 +582,12 @@ const HomePage = () => {
                   document.getElementById("formName").value);
               formData.append("file",
                   document.getElementById("formFile").files[0]);
-              await axios.post(`${BACKEND_API_URL}/lab_reports/`, formData,
+              const report_data = await axios.post(`${BACKEND_API_URL}/lab_reports/`, formData,
                   {
                     headers: {"Content-Type": "multipart/form-data"},
                   });
+              console.log(report_data.data);
+              axios.put(`${BACKEND_API_URL}/lab_reports/${report_data.data.report_id}/analysis`)
               setShow(false);
               fetchLabResults();
             }}
@@ -565,7 +608,8 @@ const HomePage = () => {
         undone.
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="danger" onClick={handleDeleteConfirm}>
+        <Button type="primary"
+        danger onClick={handleDeleteConfirm}>
           Delete
         </Button>
         <Button variant="secondary"
