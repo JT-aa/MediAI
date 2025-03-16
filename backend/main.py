@@ -240,6 +240,7 @@ def read_lab_reports(user_id: int, db: Session = Depends(get_db)):
       "date": report.date,
       "risk_level": report.risk_level,
       "name": report.name,
+      "risk_score": report.risk_score
     }
     for report in lab_reports
   ]
