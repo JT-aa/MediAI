@@ -17,7 +17,7 @@ By leveraging AI and medical data interpretation, MediAI aims to empower users w
 - Han Yang yang.han4@northeastern.edu
 
 ## Tech Stack
-- **React** for frontend
+- **React.js** with **Vite** for frontend
 - **Python FastAPI** for backend
 - **Llama Optimized for Snapdragon** in **AnythingLLM** for on device LLM
 - Local **LanceDB** as vector database for better medical understanding
