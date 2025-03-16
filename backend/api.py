@@ -87,21 +87,3 @@ class Api:
             print(f"HTTP error occurred: {err}")
         except requests.exceptions.RequestException as err:
             print(f"An error occurred: {err}")
-
-token = "XVHW5FD-Q5B4J3M-JT0QV70-X0S0HNM"
-base_url = "http://localhost:3001/api"
-slug = "my-workplace"
-api = Api(token, base_url, slug)
-file_path = "C:/Users/songl/Downloads/sample lab.txt"
-file_content = ""
-try:
-    with open(file_path, "r") as file:  # Open the file in read mode
-        file_content = file.read()      # Read the entire file as a string
-    print("File content successfully read!")
-except FileNotFoundError:
-    print(f"Error: The file '{file_path}' was not found.")
-except Exception as e:
-    print(f"An error occurred: {e}")
-api = Api( token, base_url, slug)
-res = api.send_prompt(file_content)
-print(res)
