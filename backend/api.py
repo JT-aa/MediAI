@@ -1,4 +1,3 @@
-from flask import FastAPI, request, jsonify
 import requests
 
 class Api:
@@ -106,5 +105,3 @@ except Exception as e:
 api = Api( token, base_url, slug)
 res = api.send_prompt(file_content)
 print(res)
-
-app = FastAPI()
