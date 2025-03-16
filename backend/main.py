@@ -12,6 +12,8 @@ from fastapi.responses import Response  # <-- Import Response
 from fastapi.exceptions import HTTPException  # <-- Import HTTPException
 from PyPDF2 import PdfReader
 import math
+import api
+
 
 import pymysql
 
@@ -273,9 +275,15 @@ def get_health_score(user_id: int, db: Session = Depends(get_db)):
   health_score = calculate_health_score(risk_scores)
   return {"user_id": user_id, "health_score": health_score}
 
-# @app.post("/predict/")
-# async def predict(file: UploadFile = File(...)):
-#     # Dummy inference - Replace with real processing
-#     data = np.random.rand(1, 10).astype(np.float32)
-#     result = onnx_model.run(None, {"input": data})
-#     return {"prediction": result}
+@app.put("/lab_reports/{report_id}/analysis")
+def update_analysis(report_id: int, db: Session = Depends(get_db)):
+    token = "XVHW5FD-Q5B4J3M-JT0QV70-X0S0HNM"
+    base_url = "http://localhost:3001/api"
+    slug = "my-workplace"
+    newapi = api.Api(token, base_url, slug)
+    lab_report = db.query(LabReport).filter(LabReport.report_id == report_id).first()
+    if lab_report:
+        lab_report.analysis = newapi.send_prompt(lab_report.extracted_text)
+        db.commit()
+        db.refresh(lab_report)
+    return lab_report
