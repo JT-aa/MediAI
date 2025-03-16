@@ -2,7 +2,7 @@
 On-Device Medical Diagnosis and Recommendations
 
 ## Screenshots:
-https://1drv.ms/f/s!AkeLUvIyHyo1ijMKuRwa1wwtOmNn?e=KYZogc
+https://1drv.ms/f/s!AkeLUvIyHyo1ijSRCaikV74pU1CF?e=R5la1T
 
 ## Description
 MediAI is an AI-powered medical assistant designed to help users analyze their medical examination reports. Our application allows users to upload lab reports, extracts relevant health metrics, and provides insights such as:
