@@ -100,9 +100,7 @@ const LabResultDetails = () => {
               <Card.Body>
                 <Card.Title className="mb-3">
                   My Health Problem</Card.Title>
-                <p>
-                  you have are overweight
-                </p>
+                <p>{labResult?.analysis || "No analysis available"}</p>
               </Card.Body>
             </Card>
 
@@ -111,9 +109,8 @@ const LabResultDetails = () => {
               <Card.Body>
                 <Card.Title className="mb-3">
                   Lifestyle adjustment Suggestions</Card.Title>
-                <p>
-                  you probably need to workout more and eat less
-                </p>
+                <p>{labResult?.lifestyle_change_suggestions
+                    || "No suggestions available"}</p>
               </Card.Body>
             </Card>
           </Col>
