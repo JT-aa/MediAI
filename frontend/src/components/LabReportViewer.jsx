@@ -21,15 +21,24 @@ const LabReportViewer = ({ reportId }) => {
   }, [reportId]);
 
   return (
-    <div>
+    <div
+      style={{
+        width: "100%",
+        height: "100%", // Adjust height dynamically
+        overflow: "auto", // Enable scrolling inside
+        border: "1px solid #ccc", // Optional: Border for clarity
+        borderRadius: "8px", // Optional: Rounded corners
+        padding: "8px",
+      }}
+    >
       {pdfUrl ? (
         <Worker
-          workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}
+          workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}
         >
           <Viewer plugins={[defaultLayoutPluginInstance]} fileUrl={pdfUrl} />
         </Worker>
       ) : (
-        <p>Loading...</p>
+        <p style={{ textAlign: "center", padding: "20px" }}>Loading...</p>
       )}
     </div>
   );
