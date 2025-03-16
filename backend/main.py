@@ -11,13 +11,13 @@ from fastapi.responses import Response  # <-- Import Response
 from fastapi.exceptions import HTTPException  # <-- Import HTTPException
 from PyPDF2 import PdfReader
 import math
-
+import api
 
 import pymysql
 pymysql.install_as_MySQLdb()
 
 # MySQL Database setup
-DATABASE_URL = "mysql://root:12345678@localhost:3306/mediai"  # Update with your actual credentials
+DATABASE_URL = "mysql://root:271828@localhost:3306/mediai"  # Update with your actual credentials
 
 # Set up SQLAlchemy
 Base = declarative_base()
@@ -186,7 +186,7 @@ async def create_lab_report(
 # get lab report information by report_id from the mysql database
 @app.get("/lab_reports/{report_id}")
 def read_lab_report(report_id: int, db: Session = Depends(get_db)):
-    lab_report = db.query(LabReport).filter(LabReport.report_id == report_id).first()
+    lab_report =db.query(LabReport).filter(LabReport.report_id == report_id).first() 
     if lab_report is None:
         return {"message": "Lab report not found"}
     return {
@@ -242,7 +242,19 @@ def get_health_score(user_id: int, db: Session = Depends(get_db)):
     health_score = calculate_health_score(risk_scores)
     return {"user_id": user_id, "health_score": health_score}
 
-
+@app.post("/lab_reports/{report_id}/analysis")
+def create_analysis(report_id: int, db: Session = Depends(get_db)):
+    token = "XVHW5FD-Q5B4J3M-JT0QV70-X0S0HNM"
+    base_url = "http://localhost:3001/api"
+    slug = "my-workplace"
+    newapi = api.Api(token, base_url, slug)
+    lab_report = db.query(LabReport).filter(LabReport.report_id == report_id).first()
+    if lab_report is not None:
+        response = newapi.send_prompt(lab_report.extracted_text)
+        return {
+            "report_id": lab_report.report_id,
+            ""
+        }
 
 # @app.post("/predict/")
 # async def predict(file: UploadFile = File(...)):
