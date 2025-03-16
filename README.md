@@ -10,11 +10,11 @@ MediAI is an AI-powered medical assistant designed to help users analyze their m
 4. Secure On-Device Processing: Ensures user privacy by running the AI analysis locally.
 By leveraging AI and medical data interpretation, MediAI aims to empower users with actionable insights for better health management.
 ## Contributors
-    Jingtao Han
-    Ruiyi Li
-    Yan Zhao
-    Songling Zhou
-    Han Yang
+- Jingtao Han han.jingt@northeastern.edu
+- Ruiyi Li li.ruiyi@northeastern.edu
+- Yan Zhao zhao.y4@northeastern.edu
+- Songling Zhou zhou.son@northeastern.edu
+- Han Yang yang.han4@northeastern.edu
 ## Setup
 Clone the project to local 
 ```
@@ -48,15 +48,12 @@ the backend will be running locally on http://127.0.0.1:8000/
 Open the Application
 
 Launch a web browser and navigate to:
-arduino
-Copy
-Edit
 http://localhost:5173/  
 Upload a Lab Report
 
 On the right side of the page, click "Upload New Lab Report."
 Select and upload a PDF version of your medical examination report.
-Processing the Report
+Then the system will the Report
 
 Wait approximately 30 seconds for the AI to analyze your report.
 The risk level will update from "Pending" to its corresponding category based on your health data.
