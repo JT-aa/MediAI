@@ -4,10 +4,10 @@ On-Device Medical Diagnosis and Recommendations
 ## Description
 MediAI is an AI-powered medical assistant designed to help users analyze their medical examination reports. Our application allows users to upload lab reports, extracts relevant health metrics, and provides insights such as:
 
-1. Health Score Calculation: Generates a personalized health score based on lab results.
-2. Analysis & Risk Assessment: Identifies potential health risks based on medical data.
-3. Personalized Recommendations: Suggests lifestyle adjustments and medical follow-ups.
-4. Secure On-Device Processing: Ensures user privacy by running the AI analysis locally.
+1. **Health Score Calculation & Trend:** Generates a personalized health score based on lab results. Analyze the health trend.
+2. **Analysis & Risk Assessment**: Identifies potential health risks based on medical data.
+3. **Personalized Recommendations**: Suggests lifestyle adjustments and medical follow-ups.
+4. **Secure On-Device Processing**: Ensures user privacy by running the AI analysis locally.
 By leveraging AI and medical data interpretation, MediAI aims to empower users with actionable insights for better health management.
 ## Contributors
 - Jingtao Han han.jingt@northeastern.edu
@@ -45,11 +45,22 @@ uvicorn main:app --reload
 the backend will be running locally on http://127.0.0.1:8000/
 
 ## Run and Usage
+
+- **My Health Score**
+- **My Health Journey**
+- **My Health Trend**
+- **Potential Problems**
+- **Medical Recommendations**
+- **Lifestyle Change Suggestions**
+
+  
 Open the Application
 
 Launch a web browser and navigate to:
 http://localhost:5173/  
 Upload a Lab Report
+
+
 
 On the right side of the page, click "Upload New Lab Report."
 Select and upload a PDF version of your medical examination report.
